@@ -3,7 +3,6 @@ Created by Lama	Development
 For support - https://discord.gg/etkAKTw3M7
 Do not edit below if you don't know what you are doing
 ]] --
-
 if Config.EnabledJobs['truck_driver'] then
     -- variables, do not touch
     local amount = 0
@@ -86,7 +85,8 @@ if Config.EnabledJobs['truck_driver'] then
         trailer = SpawnTrailer(model, location)
         DisplayNotification("~b~New task: ~w~pick up the trailer at the marked location.")
         if Config.UseND then
-            DisplayNotification("Long press ~r~SHIFT~w~ + ~r~X~w~ at any time to force-cancel the job and pay a penalty.")
+            DisplayNotification(
+                "Long press ~r~SHIFT~w~ + ~r~X~w~ at any time to force-cancel the job and pay a penalty.")
         else
             DisplayNotification("Long Press ~r~SHIFT~w~ + ~r~X~w~ at any time to force-cancel the job.")
         end
@@ -228,11 +228,27 @@ if Config.EnabledJobs['truck_driver'] then
         while not HasModelLoaded(model) do
             Wait(500)
         end
-        truck = CreateVehicle(model, location.x, location.y, location.z, location.h, true, false)
+        local truck = CreateVehicle(model, location.x, location.y, location.z, location.h, true, false)
         SetVehicleEngineOn(truck, true, true, false)
         SetVehicleOnGroundProperly(truck)
         SetEntityAsMissionEntity(truck, true, true)
         SetModelAsNoLongerNeeded(model)
+        local netId = NetworkGetNetworkIdFromEntity(truck) -- Calculate netId
+        return truck, netId
+    end
+
+    -- Call the function when spawning the truck
+    local spawnedTruck, netId = SpawnVehicle(model, location)
+    TriggerServerEvent("TruckDriver:started", spawnedTruck, netId)
+
+    -- function to get random items from a table
+    function math.randomchoice(table)
+        local keys = {}
+        for key, value in pairs(table) do
+            keys[#keys + 1] = key
+        end
+        index = keys[math.random(1, #keys)]
+        return table[index]
     end
 
     -- function to trailer truck at desired location
@@ -245,16 +261,6 @@ if Config.EnabledJobs['truck_driver'] then
         SetVehicleOnGroundProperly(trailer)
         SetEntityAsMissionEntity(trailer, true, true)
         SetModelAsNoLongerNeeded(model)
-    end
-
-    -- function to get random items from a table
-    function math.randomchoice(table)
-        local keys = {}
-        for key, value in pairs(table) do
-            keys[#keys + 1] = key
-        end
-        index = keys[math.random(1, #keys)]
-        return table[index]
     end
 
     -- function to display the notification above minimap

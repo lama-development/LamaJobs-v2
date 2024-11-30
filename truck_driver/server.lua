@@ -4,11 +4,6 @@ For support - https://discord.gg/etkAKTw3M7
 Do not edit below if you don't know what you are doing
 ]] --
 
--- ND_Framework exports
-if Config.UseND then
-    NDCore = exports["ND_Core"]:GetCoreObject()
-end
-
 -- variables, do not touch
 local deliveries = {}
 local playersOnJob = {}
@@ -24,12 +19,21 @@ end
 
 -- start the job and give the client access to the truck
 RegisterNetEvent("TruckDriver:started", function(truck)
+    -- source refers to the player who triggered the event
     local src = source
     playersOnJob[src] = true
-	if Config.UseND then
-		exports["ND_VehicleSystem"]:giveAccess(source, truck)
-	end
+    if Config.UseND then
+        -- Check if the entity exists before proceeding
+        if DoesEntityExist(truck) then
+            local netId = NetworkGetNetworkIdFromEntity(truck)
+            NDCore.giveVehicleAccess(src, truck, true)
+        else
+            print("Invalid truck entity")
+        end
+    end
 end)
+
+
 
 RegisterNetEvent("TruckDriver:delivered", function(location)
     local src = source
@@ -54,11 +58,12 @@ RegisterNetEvent("TruckDriver:finished", function()
 			-- only give the money to the client if it is on the job and near the ending location
 		if playersOnJob[src] and not isClientTooFar(Config.DepotLocation) then
 			-- give the money to player
-			-- if using another framework than ND, simply change the function below to your framework's
             deliveries[src] = 0
             playersOnJob[src] = false
+            -- if using another framework than ND, simply change the function below to your framework's
             if Config.UseND then
-			    NDCore.Functions.AddMoney(amount, src, "bank")
+                local player = NDCore.getPlayer(src)
+                player.addMoney("bank", amount, "Truck job salary")
             end
 		else
 			print(string.format("^1Possible exploiter detected\nName: ^0%s\n^1Identifier: ^0%s\n^1Reason: ^0has requested to be paid without being at the job ending location", GetPlayerName(source), GetPlayerIdentifier(source, 0)))
@@ -70,6 +75,7 @@ RegisterNetEvent("TruckDriver:forcequit", function()
     local src = source
     local penalty = Config.Penalty
     if Config.UseND then
-        NDCore.Functions.DeductMoney(penalty, src, "bank")
+        local player = NDCore.getPlayer(src)
+        player.deductMoney("bank", penalty, "Truck job penalty")
     end
 end)

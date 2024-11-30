@@ -1,17 +1,23 @@
 --[[
-Created by Lama	Development
+Created by Lama Development
 For support - https://discord.gg/etkAKTw3M7
 Do not edit below if you don't know what you are doing
 ]] --
 
-if Config.UseND then
-    NDCore = exports["ND_Core"]:GetCoreObject()
-end
-
 RegisterNetEvent("FoodDelivery:started", function(spawned_car)
-	if Config.UseND then
-		exports["ND_VehicleSystem"]:giveAccess(source, spawned_car)
-	end
+    if Config.UseND then
+        -- source refers to the player who triggered the event
+        local player = source 
+        -- Check if the entity exists before proceeding
+        if DoesEntityExist(spawned_car) then
+            local netId = NetworkGetNetworkIdFromEntity(spawned_car)
+            exports["ND_VehicleSystem"]:giveAccess(player, spawned_car, netId)
+            exports["ND_VehicleSystem"]:setVehicleOwned(player, { model = spawned_car }, false)
+            exports["ND_VehicleSystem"]:giveKeys(spawned_car, player, player)
+        else
+            print("Invalid vehicle entity!")
+        end
+    end
 end)
 
 RegisterServerEvent('FoodDelivery:success')

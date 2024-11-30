@@ -194,15 +194,14 @@ if Config.EnabledJobs['drug_trafficking'] then
         -- spawn the vehicle
         drugVan = CreateVehicle(vehicleName, 2201.32, 5616.51, 53.78, 325.27, true, false)
         SetVehicleEngineOn(drugVan, true, true, false)
-        -- tell server we started the job and give access to vehicle
-        TriggerServerEvent("DrugTrafficking:StartedCollecting", drugVan)
-        SetPedIntoVehicle(ped, drugVan, -1)
         SetVehicleFixed(drugVan)
         SetEntityAsMissionEntity(drugVan, true, true)
         SetModelAsNoLongerNeeded(vehicleName)
         JobStarted = true
         -- first objective
         NewDrugChoice()
+		-- tell server we started the job and give access to vehicle
+        TriggerServerEvent("DrugTrafficking:StartedCollecting", drugVan)
     end
 
     -- draw marker and check when to start the job

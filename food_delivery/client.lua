@@ -332,7 +332,7 @@ if Config.EnabledJobs['food_delivery'] then
 		AddTextEntry("press_deliver_food", "Press ~INPUT_CONTEXT~ to deliver the food")
 		isOnFoodJob = true
 		if Config.UseND then
-			drawnotifcolor("Drive to the destination.\nPress ~r~X~s~ at any time to cancel the delivery. You will foodPay a penalty.", 140)
+			drawnotifcolor("Drive to the destination.\nPress ~r~X~s~ at any time to cancel the delivery and pay a penalty.", 140)
 		else
 			drawnotifcolor("Drive to the destination.\nPress ~r~X~s~ at any time to cancel the delivery.", 140)
 		end
@@ -411,15 +411,14 @@ if Config.EnabledJobs['food_delivery'] then
 			-- spawn food delivery car
 			spawned_car = CreateVehicle(vehicle, coords, 180, true, false)
 			SetVehicleEngineOn(spawned_car, true, true, false)
-			-- tell server we started the job and to give access to the vehicle
-			TriggerServerEvent("TruckDriver:started", spawned_car)
 			SetVehicleOnGroundProperly(spawned_car)
-			SetPedIntoVehicle(myPed, spawned_car, -1)
 			SetModelAsNoLongerNeeded(vehicle)
 			Citizen.InvokeNative(0xB736A491E64A32CF, Citizen.PointerValueIntInitialized(spawned_car))
 			-- start job
 			isOnFoodJob = true
 			StartFoodDeliveryJob()
+			-- tell server we started the job and to give access to the vehicle
+			TriggerServerEvent("TruckDriver:started", spawned_car)
 		end
 	end
 

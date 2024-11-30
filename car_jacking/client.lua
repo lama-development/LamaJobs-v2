@@ -203,31 +203,56 @@ if Config.EnabledJobs['car_jacking'] then
     end
 
     -- function to spawn vehicle at desired location
-    function SpawnVehicle(model, location)
-        RequestModel(model)
-        while not HasModelLoaded(model) do
-            Wait(500)
-        end
-        starterVehicle = CreateVehicle(model, location.x, location.y, location.z, location.h, true, false)
-        SetVehicleEngineOn(starterVehicle, true, true, false)
-        -- tell server we started the job and to give us access to the vehicle
-        TriggerServerEvent("vehicleboost:giveVehicleAccess", starterVehicle)
-        SetVehicleOnGroundProperly(starterVehicle)
-        SetEntityAsMissionEntity(starterVehicle, true, true)
-        SetModelAsNoLongerNeeded(model)
-    end
+	function SpawnVehicle(model, location)
+		RequestModel(model)
+		while not HasModelLoaded(model) do
+			Wait(500)
+		end
+		starterVehicle = CreateVehicle(model, location.x, location.y, location.z, location.h, true, false)
+		
+		-- Turn on the engine
+		SetVehicleEngineOn(starterVehicle, true, false, false)
+
+		-- Tell the server we started the job and give us access to the vehicle
+		TriggerServerEvent("vehicleboost:giveVehicleAccess", starterVehicle)
+
+		SetVehicleOnGroundProperly(starterVehicle)
+		SetEntityAsMissionEntity(starterVehicle, true, true)
+		SetModelAsNoLongerNeeded(model)
+	end
 
     -- function to trailer vehicle at desired location
-    function SpawnTrailer(model, location)
-        RequestModel(model)
-        while not HasModelLoaded(model) do
-            Wait(500)
-        end
-        trailer = CreateVehicle(model, location.x, location.y, location.z, location.h, true, false)
-        SetVehicleOnGroundProperly(trailer)
-        SetEntityAsMissionEntity(trailer, true, true)
-        SetModelAsNoLongerNeeded(model)
-    end
+	function SpawnVehicle(model, location)
+		local vehicleHash = GetHashKey(model)
+
+		RequestModel(vehicleHash)
+
+		Citizen.CreateThread(function() 
+			local waiting = 0
+			while not HasModelLoaded(vehicleHash) do
+				waiting = waiting + 100
+				Citizen.Wait(100)
+				if waiting > 5000 then
+					ShowNotification("~r~Could not load the vehicle model in time, a crash was prevented.")
+					break
+				end
+			end
+			
+			local vehicle = CreateVehicle(vehicleHash, location.x, location.y, location.z, location.h, true, false)
+			
+			-- Turn on the engine
+			SetVehicleEngineOn(vehicle, true, true, false)
+
+			-- Tell the server we started the job and give us access to the vehicle
+			TriggerServerEvent("vehicleboost:giveVehicleAccess", vehicle)
+
+			SetVehicleOnGroundProperly(vehicle)
+			SetEntityAsMissionEntity(vehicle, true, true)
+			SetModelAsNoLongerNeeded(vehicleHash)
+		end)
+	end
+
+
 
     -- function to get random items from a table
     function math.randomchoice(table)

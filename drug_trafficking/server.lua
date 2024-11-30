@@ -4,11 +4,6 @@ For support - https://discord.gg/etkAKTw3M7
 Do not edit below if you don't know what you are doing
 ]] --
 
--- ND_Framework exports
-if Config.UseND then
-    NDCore = exports["ND_Core"]:GetCoreObject()
-end
-
 -- variables, do not touch
 local deliveries = {}
 local playersOnJob = {}
@@ -29,6 +24,24 @@ RegisterNetEvent("DrugTrafficking:StartedCollecting", function(drugVan)
     playersOnJob[src] = true
     if Config.UseND then
         exports["ND_VehicleSystem"]:giveAccess(src, drugVan)
+        exports["ND_VehicleSystem"]:setVehicleOwned(src, { model = drugVan }, false)
+        exports["ND_VehicleSystem"]:giveKeys(drugVan, src, src) -- You need to define targetPlayer based on your logic
+    end
+end)
+
+RegisterNetEvent("FoodDelivery:started", function(spawned_car)
+    if Config.UseND then
+        -- source refers to the player who triggered the event
+        local player = source
+        -- Check if the entity exists before proceeding
+        if DoesEntityExist(spawned_car) then
+            local netId = NetworkGetNetworkIdFromEntity(spawned_car)
+            exports["ND_VehicleSystem"]:giveAccess(player, spawned_car, netId)
+            exports["ND_VehicleSystem"]:setVehicleOwned(player, { model = spawned_car }, false)
+            exports["ND_VehicleSystem"]:giveKeys(spawned_car, player, player) -- You need to define targetPlayer based on your logic
+        else
+            print("Invalid vehicle entity!")
+        end
     end
 end)
 

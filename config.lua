@@ -12,11 +12,11 @@ Config.UseND = true
 
 -- Choose to enable or disable certain jobs
 Config.EnabledJobs = {
-    ['car_jacking'] = true,
-    ['dock_worker'] = true,
-    ['drug_trafficking'] = true,
-    ['food_delivery'] = true,
-    ['garbage_collector'] = true,
+    ['car_jacking'] = false,
+    ['dock_worker'] = false,
+    ['drug_trafficking'] = false,
+    ['food_delivery'] = false,
+    ['garbage_collector'] = false,
     ['truck_driver'] = true
 }
 
@@ -157,6 +157,13 @@ Config.GarbageTruck = 'trash'
 -- Set the amount of money earned per task completed
 -- Only works if you set UseND to true, otherwise leave this as it is
 Config.GarbageAmount = 100
+
+Config.TrashTruckSpawn = {
+    x = 844.37, -- Replace with the X coordinate
+    y = -2350.33, -- Replace with the Y coordinate
+    z = 30.33,   -- Replace with the Z coordinate
+	h = 262.37,   -- Replace with the H corodinate
+}
 
 -- Set the possible garbage pickup locations
 Config.GarbagePos = {

@@ -4,11 +4,6 @@ For support - https://discord.gg/etkAKTw3M7
 Do not edit below if you don't know what you are doing
 ]] --
 
--- ND_Framework exports
-if Config.UseND then
-	NDCore = exports["ND_Core"]:GetCoreObject()
-end
-
 -- variables, do not touch
 local deliveries = {}
 local playersOnJob = {}
@@ -19,10 +14,21 @@ RegisterNetEvent("vehicleboost:started", function()
 end)
 
 RegisterNetEvent("vehicleboost:giveVehicleAccess", function(starterVehicle)
-	if Config.UseND then
-		exports["ND_VehicleSystem"]:giveAccess(source, starterVehicle)
-	end
+    if Config.UseND then
+		-- source refers to the player who triggered the event
+		local player = source 
+        -- Check if the entity exists before proceeding
+        if DoesEntityExist(starterVehicle) then
+            local netId = NetworkGetNetworkIdFromEntity(starterVehicle)
+            exports["ND_VehicleSystem"]:giveAccess(player, starterVehicle, netId)
+            exports["ND_VehicleSystem"]:setVehicleOwned(player, { model = starterVehicle }, false)
+            exports["ND_VehicleSystem"]:giveKeys(starterVehicle, player, player) 
+        else
+            print("Invalid starter vehicle entity!")
+        end
+    end
 end)
+
 
 RegisterNetEvent("vehicleboost:delivered", function(location)
     local src = source

@@ -163,26 +163,27 @@ if Config.EnabledJobs['garbage_collector'] then
         end
     end
 
-    function StartGarbageJob()
-        local ped = GetPlayerPed(-1)
-        local vehicleName = Config.GarbageTruck
-        RequestModel(vehicleName)
-        while not HasModelLoaded(vehicleName) do
-            Wait(500)
-        end
-        -- spawn garbage
-        garbageTruck = CreateVehicle(vehicleName, 859.18, -2358.3, 30.35, 354.76, true, false)
-        SetVehicleEngineOn(garbageTruck, true, true, false)
-        -- tell server that the player has started the job and to give access to the truck
-        TriggerServerEvent("TruckDriver:started", garbageTruck)
-        SetPedIntoVehicle(ped, garbageTruck, -1)
-        SetEntityAsMissionEntity(garbageTruck, true, true)
-        SetVehicleExtra(garbageTruck, 2, false)
-        SetModelAsNoLongerNeeded(vehicleName)
+	function StartGarbageJob()
+		local ped = GetPlayerPed(-1)
+		local vehicle = Config.GarbageTruck
+		RequestModel(vehicle)
+		while not HasModelLoaded(vehicle) do
+			Wait(500)
+		end
+
+		-- Use the specified spawn location from Config.TrashTruckSpawn
+		local spawnCoords = vector3(Config.TrashTruckSpawn.x, Config.TrashTruckSpawn.y, Config.TrashTruckSpawn.z)
+
+		-- Spawn garbage truck
+		garbageTruck = CreateVehicle(vehicle, spawnCoords, 0.0, true, false)
+		SetVehicleEngineOn(garbageTruck, true, true, false)
         JobStarted = true
-        -- get first objective
+        -- Tell the server that the player has started the job and to give access to the truck
+        TriggerServerEvent("TrashCollector:started", garbageTruck)
+        -- Get the first objective
         NewChoiseGarbage()
-    end
+	end
+
 
     -- draw marker and check when to start the job
     Citizen.CreateThread(function()
